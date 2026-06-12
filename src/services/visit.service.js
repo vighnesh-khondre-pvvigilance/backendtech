@@ -15,55 +15,66 @@ exports.createVisit = async (
 ) => {
   console.log("VISITS TABLE =", process.env.VISITS_TABLE);
   const visitId = uuid();
-  if(!plantId || !visitId){
-    return new Error("VisitId and plnat Id required");
-  }
+
   const item = {
-    visitId,
+  VisitID: visitId,
 
-    plantId:
-      visitData.plantId,
+  PlantID: visitData.PlantID,
+  ClientID: visitData.ClientID,
 
-    taskId:
-      visitData.taskId,
+  workDoneBy: visitData.workDoneBy,
 
-    technicianId:
-      visitData.technicianId,
+  visitDate: visitData.visitDate,
 
-    approvalConfirmed:
-      visitData.approvalConfirmed,
+  inverterStatus: visitData.inverterStatus,
+  inverterRemarks: visitData.inverterRemarks,
 
-    safety:
-      visitData.safety || {
-        verified: false,
-        image: null,
-      },
+  importReading: visitData.importReading,
+  exportReading: visitData.exportReading,
+  netReading: visitData.netReading,
+  generationReading: visitData.generationReading,
 
-    visitForm:
-      visitData.visitForm || {},
+  extraRemarks: visitData.extraRemarks,
 
-    uploads:
-      visitData.uploads || {},
+  iAmAgreeWithRules: visitData.iAmAgreeWithRules,
 
-    cleaning:
-      visitData.cleaning || {
-        required: false,
-        done: false,
-        before: [],
-        after: [],
-      },
+  safetyPhotourl: visitData.safetyPhotourl,
 
-    status: "Completed",
+  isCleaningCycle: visitData.isCleaningCycle,
 
-    submittedAt:
-      new Date().toISOString(),
+  clientSignaturePhotourl:
+    visitData.clientSignaturePhotourl,
 
-    createdAt:
-      new Date().toISOString(),
+  extraOtherPhotourl:
+    visitData.extraOtherPhotourl,
 
-    updatedAt:
-      new Date().toISOString(),
-  };
+  inverterPhotourl:
+    visitData.inverterPhotourl,
+
+  importReadingPhotoUrl:
+    visitData.importReadingPhotoUrl,
+
+  exportReadingPhotoUrl:
+    visitData.exportReadingPhotoUrl,
+
+  netReadingPhotoUrl:
+    visitData.netReadingPhotoUrl,
+
+  generationReadingPhotoUrl:
+    visitData.generationReadingPhotoUrl,
+
+  beforeCleaningPhotourl:
+    visitData.beforeCleaningPhotourl,
+
+  afterCleaningPhotourl:
+    visitData.afterCleaningPhotourl,
+
+  status: "Completed",
+
+  submittedAt: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
   console.log("ITEM TO SAVE");
   console.log(JSON.stringify(item, null, 2));
 
@@ -93,7 +104,7 @@ exports.getVisit = async (
           process.env.VISITS_TABLE,
 
         Key: {
-          visitId,
+          VisitID: visitId,
         },
       })
     );

@@ -1,6 +1,9 @@
 const plantService =
   require("../services/plant.service");
 
+/**
+ * Get all plants by client
+ */
 exports.getPlantsByClient =
   async (req, res) => {
     try {
@@ -13,9 +16,10 @@ exports.getPlantsByClient =
         );
 
       res.status(200).json({
+        statusCode: 200,
         success: true,
         message:
-          "Plants fetched successfully",
+          "Solar plants retrieved successfully",
         data: plants,
       });
     } catch (error) {
@@ -29,7 +33,9 @@ exports.getPlantsByClient =
     }
   };
 
-  
+/**
+ * Get single plant
+ */
 exports.getPlantById =
   async (req, res) => {
     try {
@@ -50,8 +56,11 @@ exports.getPlantById =
       }
 
       res.status(200).json({
+        statusCode: 200,
         success: true,
-        data: plant,
+        message:
+          "Solar plants retrieved successfully",
+        data: [plant], // same format as company API
       });
     } catch (error) {
       console.error(error);

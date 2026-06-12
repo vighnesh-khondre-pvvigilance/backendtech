@@ -6,24 +6,47 @@ const visitService =
  */
 exports.createVisit = async (req, res) => {
   try {
-    console.log("=== SUBMIT VISIT START ===");
-    console.log(JSON.stringify(req.body, null, 2));
+    console.log(
+      "=== SUBMIT VISIT START ==="
+    );
 
-    const visit = await visitService.createVisit(req.body);
+    console.log(
+      JSON.stringify(
+        req.body,
+        null,
+        2
+      )
+    );
 
-    console.log("visit is : ", visit);
+    const visit =
+      await visitService.createVisit(
+        req.body
+      );
 
-    res.status(201).json({
-      success: true,
-      message: "Visit submitted successfully",
+    console.log(
+      "visit is : ",
+      visit
+    );
+
+    return res.status(201).json({
+      statusCode: 201,
       data: visit,
+      message:
+        "Visit form and notification added successfully",
+      success: true,
     });
   } catch (error) {
-    console.error("createVisit error:", error);
+    console.error(
+      "createVisit error:",
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
+      statusCode: 500,
+      data: null,
+      message:
+        "Failed to submit visit",
       success: false,
-      message: "Failed to submit visit",
       error: error.message,
     });
   }
@@ -47,15 +70,20 @@ exports.getVisit = async (
 
     if (!visit) {
       return res.status(404).json({
-        success: false,
+        statusCode: 404,
+        data: null,
         message:
           "Visit not found",
+        success: false,
       });
     }
 
-    res.status(200).json({
-      success: true,
+    return res.status(200).json({
+      statusCode: 200,
       data: visit,
+      message:
+        "Visit fetched successfully",
+      success: true,
     });
   } catch (error) {
     console.error(
@@ -63,10 +91,12 @@ exports.getVisit = async (
       error
     );
 
-    res.status(500).json({
-      success: false,
+    return res.status(500).json({
+      statusCode: 500,
+      data: null,
       message:
         "Failed to fetch visit",
+      success: false,
       error: error.message,
     });
   }

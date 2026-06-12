@@ -7,6 +7,9 @@ const {
 const TABLE =
   process.env.PLANTS_TABLE;
 
+/**
+ * Get all plants for client
+ */
 exports.getPlantsByClient =
   async (clientId) => {
     const result =
@@ -31,6 +34,9 @@ exports.getPlantsByClient =
     return result.Items || [];
   };
 
+/**
+ * Get single plant
+ */
 exports.getPlantById =
   async (plantId) => {
     const result =
@@ -49,5 +55,7 @@ exports.getPlantById =
         })
       );
 
-    return result.Items?.[0] || null;
+    return (
+      result.Items?.[0] || null
+    );
   };
