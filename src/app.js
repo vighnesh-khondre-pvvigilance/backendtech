@@ -14,6 +14,8 @@ const clientRoutes =
 
 const plantRoutes =
   require("./routes/plantRoutes");
+
+const technicianRoutes = require("./routes/technician.routes");
 const app = express();
 
 app.use(cors());
@@ -36,5 +38,7 @@ app.use(
   "/api/plants",
   plantRoutes
 );
+
+app.use("/api/technicians", technicianRoutes);
 
 module.exports = app;
