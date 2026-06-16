@@ -1,5 +1,9 @@
-const { PutCommand } = require("@aws-sdk/lib-dynamodb");
+const { PutCommand, GetCommand, } = require("@aws-sdk/lib-dynamodb");
 const dynamo = require("../config/dynamodb");
+
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 
 exports.registerTechnician = async (data) => {
     try {
@@ -65,6 +69,83 @@ exports.registerTechnician = async (data) => {
             "REGISTER TECHNICIAN SERVICE ERROR",
             error
         );
+        throw error;
+    }
+};
+
+exports.loginTechnician = async (
+    technician_id,
+    password
+) => {
+    try {
+        const result = await dynamo.send(
+            new GetCommand({
+                TableName:
+                    process.env.TECHNICIANS_TABLE,
+                Key: {
+                    technician_id,
+                },
+            })
+        );
+
+        const technician = result.Item;
+
+        if (!technician) {
+            throw new Error(
+                "Technician not found"
+            );
+        }
+
+        if (
+            technician.registration_status !==
+            "APPROVED"
+        ) {
+            throw new Error(
+                "Technician is not approved"
+            );
+        }
+
+        if (!technician.isActive) {
+            throw new Error(
+                "Technician account inactive"
+            );
+        }
+
+        const isValidPassword =
+            await bcrypt.compare(
+                password,
+                technician.password
+            );
+
+        if (!isValidPassword) {
+            throw new Error(
+                "Invalid credentials"
+            );
+        }
+
+        const token = jwt.sign(
+            {
+                technician_id:
+                    technician.technician_id,
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d",
+            }
+        );
+
+        delete technician.password;
+
+        return {
+            token,
+            technician,
+        };
+    } catch (error) {
+        console.error(
+            "LOGIN TECHNICIAN ERROR",
+            error
+        );
+
         throw error;
     }
 };

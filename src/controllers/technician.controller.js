@@ -22,3 +22,46 @@ exports.registerTechnician = async (req, res) => {
     });
   }
 };
+
+//login 
+exports.loginTechnician = async (
+  req,
+  res
+) => {
+  try {
+    const {
+      technician_id,
+      password,
+    } = req.body;
+
+    if (
+      !technician_id ||
+      !password
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Technician ID and password are required",
+      });
+    }
+
+    const result =
+      await technicianService.loginTechnician(
+        technician_id,
+        password
+      );
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Login successful",
+      token: result.token,
+      data: result.technician,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
