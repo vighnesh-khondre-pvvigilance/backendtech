@@ -16,6 +16,8 @@ const plantRoutes =
   require("./routes/plantRoutes");
 
 const technicianRoutes = require("./routes/technician.routes");
+
+const authRoutes = require("./routes/auth.routes");
 const app = express();
 
 app.use(cors());
@@ -41,4 +43,33 @@ app.use(
 
 app.use("/api/technicians", technicianRoutes);
 
+app.use("/auth", authRoutes);
+
 module.exports = app;
+
+
+
+
+
+
+// import express from "express";
+// import cors from "cors";
+
+// import authRoutes from "./routes/auth.routes.js";
+// import technicianRoutes from "./routes/technician.routes.js";
+// import workRoutes from "./routes/work.routes.js";
+// import visitRoutes from "./routes/visit.routes.js";
+// import uploadRoutes from "./routes/upload.routes.js";
+
+// const app = express();
+
+// app.use(cors());
+// app.use(express.json());
+
+// app.use("/auth", authRoutes);
+// app.use("/technician", technicianRoutes);
+// app.use("/work", workRoutes);
+// app.use("/visit", visitRoutes);
+// app.use("/upload", uploadRoutes);
+
+// export default app;
