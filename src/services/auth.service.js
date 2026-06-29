@@ -57,11 +57,11 @@ const registerOrLogin = async ({ name, contact, email }) => {
         login: true,
         token,
         user: {
-          clientId: existingUser.clientId,
+          freeTechId: existingUser.freeTechId,
           name: existingUser.name,
-          contact: existingUser.contact,
+          phone: existingUser.contact,
           email: existingUser.email,
-          isVerified: true,
+          role: existingUser.role,
         },
       };
     }
@@ -75,7 +75,7 @@ const registerOrLogin = async ({ name, contact, email }) => {
         new UpdateCommand({
           TableName: TABLE_NAME,
           Key: {
-            clientId: existingUser.clientId,
+            freeTechId: existingUser.freeTechId,
           },
           UpdateExpression:
             "SET otp = :otp, otpExpiry = :expiry",
@@ -91,14 +91,18 @@ const registerOrLogin = async ({ name, contact, email }) => {
       return {
         success: true,
         verifyRequired: true,
-        clientId: existingUser.clientId,
+        freeTechId: existingUser.freeTechId,
         message: "OTP sent successfully",
       };
     }
 
     // New User Registration
-    const clientId =
-      "pvc" + uuidv4().replace(/-/g, "").substring(0, 9);
+    const freeTechId =
+      "PVF" +
+      uuidv4()
+        .replace(/-/g, "")
+        .substring(0, 9)
+        .toUpperCase();
 
     const otp = generateOTP();
     const otpExpiry = Date.now() + 5 * 60 * 1000;
@@ -107,10 +111,11 @@ const registerOrLogin = async ({ name, contact, email }) => {
       new PutCommand({
         TableName: TABLE_NAME,
         Item: {
-          clientId,
+          freeTechId,
           name,
           contact,
           email,
+          role: "FREE",
           otp,
           otpExpiry,
           isVerified: false,
@@ -124,7 +129,7 @@ const registerOrLogin = async ({ name, contact, email }) => {
     return {
       success: true,
       verifyRequired: true,
-      clientId,
+      freeTechId,
       message: "OTP sent successfully",
     };
   } catch (error) {
@@ -140,12 +145,12 @@ const registerOrLogin = async ({ name, contact, email }) => {
 /**
  * Verify OTP
  */
-const verifyOtp = async ({ clientId, otp }) => {
+const verifyOtp = async ({ freeTechId, otp }) => {
   try {
-    if (!clientId || !otp) {
+    if (!freeTechId || !otp) {
       return {
         success: false,
-        message: "Client ID and OTP are required",
+        message: "Free Technician ID and OTP are required",
       };
     }
 
@@ -153,7 +158,7 @@ const verifyOtp = async ({ clientId, otp }) => {
       new GetCommand({
         TableName: TABLE_NAME,
         Key: {
-          clientId,
+          freeTechId,
         },
       })
     );
@@ -192,7 +197,7 @@ const verifyOtp = async ({ clientId, otp }) => {
       new UpdateCommand({
         TableName: TABLE_NAME,
         Key: {
-          clientId,
+          freeTechId,
         },
         UpdateExpression:
           "SET isVerified = :verified REMOVE otp, otpExpiry",
@@ -208,11 +213,11 @@ const verifyOtp = async ({ clientId, otp }) => {
       success: true,
       token,
       user: {
-        clientId: user.clientId,
+        freeTechId: user.freeTechId,
         name: user.name,
-        contact: user.contact,
+        phone: user.contact,
         email: user.email,
-        isVerified: true,
+        role: user.role,
       },
     };
   } catch (error) {
