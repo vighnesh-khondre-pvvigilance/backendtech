@@ -230,7 +230,31 @@ const verifyOtp = async ({ freeTechId, otp }) => {
   }
 };
 
+const getProfile = async (freeTechId) => {
+  const response = await ddbDocClient.send(
+    new GetCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        freeTechId,
+      },
+    })
+  );
+
+  if (!response.Item) {
+    return {
+      success: false,
+      message: "User not found",
+    };
+  }
+
+  return {
+    success: true,
+    user: response.Item,
+  };
+};
+
 module.exports = {
   registerOrLogin,
   verifyOtp,
+  getProfile
 };

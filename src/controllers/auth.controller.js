@@ -1,6 +1,7 @@
 const {
   registerOrLogin,
   verifyOtp,
+   getProfile,
 } = require("../services/auth.service");
 
 /**
@@ -41,7 +42,25 @@ const verifyOtpController = async (req, res) => {
   }
 };
 
+const getProfileController = async (req, res) => {
+  try {
+    const { freeTechId } = req.params;
+
+    const result = await getProfile(freeTechId);
+
+    res.status(result.success ? 200 : 404).json(result);
+ } catch (err) {
+  console.error("Get Profile Controller Error:", err);
+
+  res.status(500).json({
+    success: false,
+    message: err.message,
+  });
+}
+};
+
 module.exports = {
   registerOrLoginController,
   verifyOtpController,
+  getProfileController
 };
