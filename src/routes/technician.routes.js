@@ -1,18 +1,16 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from "express";
+const router = Router();
 
-const technicianController = require(
-  "../controllers/technician.controller"
-);
+import { registerTechnician, loginTechnician } from "../controllers/technician.controller.js";
 
 router.post(
   "/register",
-  technicianController.registerTechnician
+  registerTechnician
 );
 
 router.post(
   "/login",
-  technicianController.loginTechnician
+  loginTechnician
 );
 
-module.exports = router;
+export default router;

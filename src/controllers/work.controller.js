@@ -1,9 +1,6 @@
-const {
-  getWorksByTechnician,
-  getWork,
-} = require("../services/work.service");
+import { getWorksByTechnician, getWork } from "../services/work.service.js";
 
-exports.getWorks = async (req, res) => {
+export async function getWorks(req, res) {
   try {
     const { technicianId } = req.query;
 
@@ -20,12 +17,12 @@ exports.getWorks = async (req, res) => {
       message: "Failed to fetch works",
     });
   }
-};
+}
 
-exports.getWorkById = async (
+export async function getWorkById(
   req,
   res
-) => {
+) {
   try {
     const { taskId } = req.params;
 
@@ -46,4 +43,4 @@ exports.getWorkById = async (
       message: "Failed to fetch work",
     });
   }
-};
+}

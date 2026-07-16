@@ -1,13 +1,7 @@
-const dynamo =
-  require("../config/dynamodb");
+import dynamo from "../config/dynamodb.js";
+import { QueryCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 
-const {
-  QueryCommand,
-  GetCommand,
-} = require("@aws-sdk/lib-dynamodb");
-
-exports.getWorksByTechnician =
-  async (technicianId) => {
+export async function   getWorksByTechnician(technicianId) {
     const command =
       new QueryCommand({
         TableName:
@@ -25,14 +19,14 @@ exports.getWorksByTechnician =
       });
 
     const result =
-      await dynamo.send(command);
+      await dynamo(command);
 
     return result.Items || [];
-  };
+  }
 
-exports.getWork = async (
+export async function getWork(
   taskId
-) => {
+) {
   const command =
     new GetCommand({
       TableName:
@@ -44,7 +38,7 @@ exports.getWork = async (
     });
 
   const result =
-    await dynamo.send(command);
+    await dynamo(command);
 
   return result.Item;
-};
+}

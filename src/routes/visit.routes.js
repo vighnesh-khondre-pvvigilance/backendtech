@@ -1,23 +1,21 @@
-const express = require("express");
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
-const visitController = require(
-  "../controllers/visit.controller"
-);
+import { createVisit, getVisit } from "../controllers/visit.controller.js";
 
 router.post(
   "/",
-  visitController.createVisit
+  createVisit
 );
 
 router.get(
   "/:visitId",
-  visitController.getVisit
+  getVisit
 );
 
 
 
 
 
-module.exports = router;
+export default router;

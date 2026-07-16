@@ -1,15 +1,10 @@
-const express =
-  require("express");
+import { Router } from "express";
 
 const router =
-  express.Router();
+  Router();
 
-const {
-  getClients,
-} = require(
-  "../controllers/clientController"
-);
+import { getClients } from "../controllers/clientController.js";
 
 router.get("/", getClients);
 
-module.exports = router;
+export default router;

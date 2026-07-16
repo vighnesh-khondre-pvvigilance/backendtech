@@ -1,10 +1,9 @@
-const visitService =
-  require("../services/visit.service");
+// import { createVisit, getVisit } from "../services/visit.service";
 
 /**
  * Final Visit Submission
  */
-exports.createVisit = async (req, res) => {
+export async function createVisit(req, res) {
   try {
     console.log(
       "=== SUBMIT VISIT START ==="
@@ -19,7 +18,7 @@ exports.createVisit = async (req, res) => {
     );
 
     const visit =
-      await visitService.createVisit(
+      await createVisit(
         req.body
       );
 
@@ -50,21 +49,21 @@ exports.createVisit = async (req, res) => {
       error: error.message,
     });
   }
-};
+}
 
 /**
  * Get Visit
  */
-exports.getVisit = async (
+export async function getVisit(
   req,
   res
-) => {
+) {
   try {
     const { visitId } =
       req.params;
 
     const visit =
-      await visitService.getVisit(
+      await getVisit(
         visitId
       );
 
@@ -100,4 +99,4 @@ exports.getVisit = async (
       error: error.message,
     });
   }
-};
+}

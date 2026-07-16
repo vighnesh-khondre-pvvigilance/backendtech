@@ -1,11 +1,11 @@
-const { PutCommand, GetCommand, } = require("@aws-sdk/lib-dynamodb");
-const dynamo = require("../config/dynamodb");
+import { PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { send } from "../config/dynamodb";
 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import { compare } from "bcryptjs";
+import { sign } from "jsonwebtoken";
 
 
-exports.registerTechnician = async (data) => {
+export async function registerTechnician(data) {
     try {
         if (!data.name) {
             throw new Error("Name is required");
@@ -56,7 +56,7 @@ exports.registerTechnician = async (data) => {
             updatedAt: new Date().toISOString(),
         };
 
-        await dynamo.send(
+        await send(
             new PutCommand({
                 TableName: process.env.TECHNICIANS_TABLE,
                 Item: technician,
@@ -71,14 +71,14 @@ exports.registerTechnician = async (data) => {
         );
         throw error;
     }
-};
+}
 
-exports.loginTechnician = async (
+export async function loginTechnician(
     technician_id,
     password
-) => {
+) {
     try {
-        const result = await dynamo.send(
+        const result = await send(
             new GetCommand({
                 TableName:
                     process.env.TECHNICIANS_TABLE,
@@ -112,7 +112,7 @@ exports.loginTechnician = async (
         }
 
         const isValidPassword =
-            await bcrypt.compare(
+            await compare(
                 password,
                 technician.password
             );
@@ -123,7 +123,7 @@ exports.loginTechnician = async (
             );
         }
 
-        const token = jwt.sign(
+        const token = sign(
             {
                 technician_id:
                     technician.technician_id,
@@ -148,4 +148,4 @@ exports.loginTechnician = async (
 
         throw error;
     }
-};
+}

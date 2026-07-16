@@ -1,9 +1,9 @@
-const technicianService = require("../services/technician.service");
+// import { registerTechnician, loginTechnician } from "../services/technician.service";
 
-exports.registerTechnician = async (req, res) => {
+export async function registerTechnician(req, res) {
   try {
     const result =
-      await technicianService.registerTechnician(
+      await registerTechnician(
         req.body
       );
 
@@ -21,13 +21,13 @@ exports.registerTechnician = async (req, res) => {
         error.message || "Failed to register technician",
     });
   }
-};
+}
 
 //login 
-exports.loginTechnician = async (
+export async function loginTechnician(
   req,
   res
-) => {
+) {
   try {
     const {
       technician_id,
@@ -46,7 +46,7 @@ exports.loginTechnician = async (
     }
 
     const result =
-      await technicianService.loginTechnician(
+      await loginTechnician(
         technician_id,
         password
       );
@@ -64,4 +64,4 @@ exports.loginTechnician = async (
       message: error.message,
     });
   }
-};
+}

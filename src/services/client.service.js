@@ -1,19 +1,16 @@
-const dynamo = require("../config/dynamodb");
-const {
-  ScanCommand,
-} = require("@aws-sdk/lib-dynamodb");
+import { send } from "../config/dynamodb";
+import { ScanCommand } from "@aws-sdk/lib-dynamodb";
 
 const TABLE =
   process.env.CLIENTS_TABLE;
 
-exports.getClients =
-  async () => {
+export async function   getClients() {
     const result =
-      await dynamo.send(
+      await send(
         new ScanCommand({
           TableName: TABLE,
         })
       );
 
     return result.Items || [];
-  };
+  }

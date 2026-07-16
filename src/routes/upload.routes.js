@@ -1,16 +1,13 @@
-const express = require("express");
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
-const uploadController =
-  require(
-    "../controllers/upload.controller"
-  );
+import { generatePresignedUrl } from "../controllers/upload.controller.js";
 
 router.post(
   "/presigned-url",
-  uploadController.generatePresignedUrl
+  generatePresignedUrl
   
 );
 
-module.exports = router;
+export default router;

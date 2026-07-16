@@ -1,18 +1,14 @@
-const s3 = require("../config/s3");
+import s3 from "../config/s3";
 
-const {
-  PutObjectCommand,
-} = require("@aws-sdk/client-s3");
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-const {
-  getSignedUrl,
-} = require("@aws-sdk/s3-request-presigner");
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-exports.generateUploadUrl = async ({
+export async function generateUploadUrl({
   plantId,
   fileName,
   type,
-}) => {
+}) {
   const extension =
     fileName.split(".").pop() || "jpg";
 
@@ -43,4 +39,4 @@ exports.generateUploadUrl = async ({
     uploadUrl,
     key,
   };
-};
+}

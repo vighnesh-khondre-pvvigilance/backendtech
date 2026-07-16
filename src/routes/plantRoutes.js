@@ -1,15 +1,9 @@
-const express =
-  require("express");
+import { Router } from "express";
 
 const router =
-  express.Router();
+  Router();
 
-const {
-  getPlantsByClient,
-   getPlantById,
-} = require(
-  "../controllers/plantController"
-);
+import { getPlantsByClient, getPlantById } from "../controllers/plantController.js";
 
 router.get(
   "/client/:clientId",
@@ -20,4 +14,4 @@ router.get(
   getPlantById
 );
 
-module.exports = router;
+export default router;

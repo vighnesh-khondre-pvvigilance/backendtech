@@ -1,13 +1,10 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from "express";
+const router = Router();
 
-const {
-  getWorks,
-  getWorkById,
-} = require("../controllers/work.controller");
+import { getWorks, getWorkById } from "../controllers/work.controller.js";
 
 router.get("/", getWorks);
 
 router.get("/:taskId", getWorkById);
 
-module.exports = router;
+export default router;

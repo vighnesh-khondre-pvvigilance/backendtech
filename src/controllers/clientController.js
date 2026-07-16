@@ -1,11 +1,9 @@
-const clientService =
-  require("../services/client.service");
+// import { getClients } from "../services/client.service";
 
-exports.getClients =
-  async (req, res) => {
+export async function getClients(req, res) {
     try {
       const clients =
-        await clientService.getClients();
+        await getClients();
 
       res.status(200).json({
         success: true,
@@ -22,4 +20,4 @@ exports.getClients =
           "Failed to fetch clients",
       });
     }
-  };
+  }

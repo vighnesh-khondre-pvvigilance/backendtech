@@ -1,26 +1,21 @@
-const express = require("express");
-const cors = require("cors");
+import express, { json } from "express";
+import cors from "cors";
 
-const workRoutes =
-  require("./routes/work.routes");
+import workRoutes from "./routes/work.routes.js";
 
-const visitRoutes = require("./routes/visit.routes");
-const uploadRoutes = require(
-  "./routes/upload.routes"
-);
+import visitRoutes from "./routes/visit.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
-const clientRoutes =
-  require("./routes/clientRoutes");
+import clientRoutes from "./routes/clientRoutes.js";
 
-const plantRoutes =
-  require("./routes/plantRoutes");
+import plantRoutes from "./routes/plantRoutes.js";
 
-const technicianRoutes = require("./routes/technician.routes");
+import technicianRoutes from "./routes/technician.routes.js";
 const app = express();
 
 app.use(cors());
 
-app.use(express.json());
+app.use(json());
 
 app.use("/api/work", workRoutes);
 app.use("/api/visits", visitRoutes);
@@ -41,4 +36,4 @@ app.use(
 
 app.use("/api/technicians", technicianRoutes);
 
-module.exports = app;
+export default app;

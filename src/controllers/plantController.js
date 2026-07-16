@@ -1,17 +1,15 @@
-const plantService =
-  require("../services/plant.service");
+// import { getPlantsByClient, getPlantById } from "../services/plant.service";
 
 /**
  * Get all plants by client
  */
-exports.getPlantsByClient =
-  async (req, res) => {
+export async function getPlantsByClient(req, res) {
     try {
       const { clientId } =
         req.params;
 
       const plants =
-        await plantService.getPlantsByClient(
+        await getPlantsByClient(
           clientId
         );
 
@@ -31,19 +29,18 @@ exports.getPlantsByClient =
           "Failed to fetch plants",
       });
     }
-  };
+  }
 
 /**
  * Get single plant
  */
-exports.getPlantById =
-  async (req, res) => {
+export async function   getPlantById(req, res) {
     try {
       const { plantId } =
         req.params;
 
       const plant =
-        await plantService.getPlantById(
+        await getPlantById(
           plantId
         );
 
@@ -71,4 +68,4 @@ exports.getPlantById =
           "Failed to fetch plant",
       });
     }
-  };
+  }

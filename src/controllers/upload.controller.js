@@ -1,9 +1,6 @@
-const uploadService = require(
-  "../services/upload.service"
-);
+// import { generateUploadUrl } from "../services/upload.service.js";
 
-exports.generatePresignedUrl =
-  async (req, res) => {
+export async function generatePresignedUrl(req, res) {
      console.log("REQ BODY");
     console.log(req.body);
     try {
@@ -31,7 +28,7 @@ exports.generatePresignedUrl =
       }
 
       const result =
-        await uploadService.generateUploadUrl(
+        await generateUploadUrl(
           {
             plantId,
             fileName,
@@ -52,4 +49,4 @@ exports.generatePresignedUrl =
           "Failed to generate upload URL",
       });
     }
-  };
+  }

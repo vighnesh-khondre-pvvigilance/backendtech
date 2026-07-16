@@ -1,4 +1,4 @@
-const dynamo = require("../config/dynamodb");
+const dynamo = require("../config/dynamodb").default;
 
 const {
   QueryCommand,
