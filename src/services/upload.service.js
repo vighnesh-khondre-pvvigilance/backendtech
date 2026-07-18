@@ -16,7 +16,7 @@ export async function generateUploadUrl({
     Date.now();
 
   const key =
-    `photos/${type}/${plantId}/${timestamp}.${extension}`;
+    `photos1/${type}/${plantId}/${timestamp}.${extension}`;
 
   const command =
     new PutObjectCommand({

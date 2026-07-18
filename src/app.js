@@ -10,7 +10,8 @@ import clientRoutes from "./routes/clientRoutes.js";
 
 import plantRoutes from "./routes/plantRoutes.js";
 
-import technicianRoutes from "./routes/technician.routes.js";
+import technicianRoutes from './routes/assignClient.routes.js'
+import authRoutes from './routes/auth.routes.js'
 const app = express();
 
 app.use(cors());
@@ -34,6 +35,7 @@ app.use(
   plantRoutes
 );
 
-app.use("/api/technicians", technicianRoutes);
+app.use("/api/v1/push-notification", technicianRoutes);
+
 
 export default app;

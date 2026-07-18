@@ -1,76 +1,102 @@
 import {
-  DynamoDBDocumentClient,
-  UpdateCommand,
   PutCommand,
+  QueryCommand,
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
 
-
-import { configureDynamoDB, getDynamoDBClient } from "../db/index.js";
+import dynamoDb from "../config/dynamodb.js";
 import { getNotificationToken } from "../utils/expoNotification.js";
 import notificationService from "../services/notificatioExpo.service.js";
 
-configureDynamoDB();
+const NOTIFICATION_TABLE = "NotificationTokens-dev";
+const TechnicianClientMappingTable = "TechnicianClientMapping-dev"; // confirm real table name
 
-const dynamoDbClient = getDynamoDBClient();
-const dynamoDb = DynamoDBDocumentClient.from(dynamoDbClient);
-
-const CLIENT_TABLE = "Clients-dev";
-const NOTIFICATION_TABLE = "NotificationTokens-dev"; // same existing table
-
-export const assignClientToTechnician = async (req, res) => {
+export const assignClientsToTechnician = async (req, res) => {
   try {
-    const { clientId, technicianId } = req.body;
+    const { techId, clientIds, adminId } = req.body;
 
-    if (!clientId || !technicianId) {
+    if (!techId || !Array.isArray(clientIds) || clientIds.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "clientId and technicianId are required",
+        message: "techId and clientIds (non-empty array) are required", 
       });
     }
 
-    // Update Client Assignment
-    const result = await dynamoDb.send(
-      new UpdateCommand({
-        TableName: CLIENT_TABLE,
-        Key: { clientId },
-        UpdateExpression:
-          "SET assignedTechnicianId = :techId, assignedAt = :assignedAt",
-        ExpressionAttributeValues: {
-          ":techId": technicianId,
-          ":assignedAt": new Date().toISOString(),
-        },
-        ReturnValues: "ALL_NEW",
-      })
+    const existingAssignments = [];
+
+    for (const clientId of clientIds) {
+      const existing = await dynamoDb.send(
+        new QueryCommand({
+          TableName: TechnicianClientMappingTable,
+          KeyConditionExpression: "techId = :tid AND clientId = :cid",
+          ExpressionAttributeValues: {
+            ":tid": techId,
+            ":cid": clientId,
+          },
+        })
+      );
+
+      if (existing.Items && existing.Items.length > 0) {
+        existingAssignments.push(clientId);
+      }
+    }
+
+    const newClientIds = clientIds.filter(
+      (id) => !existingAssignments.includes(id)
     );
 
-    const updatedClient = result.Attributes;
+    if (newClientIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "All selected clients are already assigned to this technician",
+      });
+    }
 
+    // Assign clients to technician
+    const nowIso = new Date().toISOString();
+
+    for (const clientId of newClientIds) {
+      await dynamoDb.send(
+        new PutCommand({
+          TableName: TechnicianClientMappingTable,
+          Item: {
+            techId,
+            clientId,
+            assignedByAdminId: adminId,
+            assignedAt: nowIso,
+            status: "active",
+          },
+        })
+      );
+    }
+
+    // ---- Notification logic ----
     const notificationPayload = {
       title: "New Client Assigned",
-      body: `${updatedClient?.clientName || "A client"} has been assigned to you`,
+      body:
+        newClientIds.length === 1
+          ? "A new client has been assigned to you"
+          : `${newClientIds.length} new clients have been assigned to you`,
       data: {
         type: "CLIENT_ASSIGNED",
         screen: "AssignedClients",
-        clientId,
-        technicianId,
+        clientIds: newClientIds,
+        techId,
       },
     };
 
     const notificationId = crypto.randomUUID();
     const createdAt = new Date().toISOString();
 
-    // IMPORTANT: use a composite key for the log item so it never collides
-    // with the technician's actual token item (userId: technicianId)
-    const logKey = `${technicianId}#${notificationId}`;
+    // Composite key so this log entry never collides with the tech's token record
+    const logKey = `${techId}#${notificationId}`;
 
-    // Persist notification record under composite key
     await dynamoDb.send(
       new PutCommand({
         TableName: NOTIFICATION_TABLE,
         Item: {
-          userId: logKey, // NOT technicianId directly
-          technicianId,   // keep the real technician id as its own attribute
+          userId: logKey,
+          technicianId: techId,
           notificationId,
           eventType: "CLIENT_ASSIGNED",
           title: notificationPayload.title,
@@ -82,13 +108,11 @@ export const assignClientToTechnician = async (req, res) => {
       })
     );
 
-    // Send Push Notification
     let ticketStatus = "FAILED";
     let expoTicket = null;
 
     try {
-      // This looks up userId: technicianId exactly -> gets the real token, untouched
-      const tokenData = await getNotificationToken(technicianId);
+      const tokenData = await getNotificationToken(techId);
 
       if (tokenData?.expoPushToken) {
         const tickets = await notificationService.sendNotification({
@@ -101,21 +125,20 @@ export const assignClientToTechnician = async (req, res) => {
         expoTicket = tickets?.[0] || null;
         ticketStatus = expoTicket?.status === "ok" ? "SENT" : "FAILED";
 
-        console.log(`Notification sent to technician ${technicianId}`);
+        console.log(`Notification sent to technician ${techId}`);
       } else {
-        console.log(`No Expo token found for technician ${technicianId}`);
+        console.log(`No Expo token found for technician ${techId}`);
       }
     } catch (notificationError) {
       console.error("Notification Error:", notificationError);
     }
 
-    // Update log item with delivery status (same composite key)
     await dynamoDb.send(
       new PutCommand({
         TableName: NOTIFICATION_TABLE,
         Item: {
           userId: logKey,
-          technicianId,
+          technicianId: techId,
           notificationId,
           eventType: "CLIENT_ASSIGNED",
           title: notificationPayload.title,
@@ -128,18 +151,61 @@ export const assignClientToTechnician = async (req, res) => {
         },
       })
     );
+    // ---- End notification logic ----
 
     return res.status(200).json({
       success: true,
-      message: "Client assigned successfully",
-      data: updatedClient,
-      notificationId,
+      message: `Assigned ${newClientIds.length} client(s) successfully`,
+      data: {
+        techId,
+        assignedClients: newClientIds,
+        skippedAlreadyAssigned: existingAssignments,
+        notificationId,
+      },
     });
   } catch (error) {
-    console.error("assignClientToTechnician:", error);
+    console.error("Error in assignClientsToTechnician:", error);
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Error assigning clients",
+      errors: [error.message],
+    });
+  }
+};
+
+
+export const saveNotificationToken = async (req, res) => {
+  try {
+    const { userId, expoPushToken, devicePlatform } = req.body;
+
+    if (!userId || !expoPushToken) {
+      return res.status(400).json({
+        success: false,
+        message: "userId and expoPushToken are required",
+      });
+    }
+
+    await dynamoDb.send(
+      new PutCommand({
+        TableName: NOTIFICATION_TABLE,
+        Item: {
+          userId, // plain techId/userId — matches what getNotificationToken(techId) queries by
+          expoPushToken,
+          devicePlatform: devicePlatform || "unknown",
+          updatedAt: new Date().toISOString(),
+        },
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Push token saved",
+    });
+  } catch (error) {
+    console.error("saveNotificationToken error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal server error",
     });
   }
 };
@@ -158,7 +224,7 @@ export const removeNotificationToken = async (req, res) => {
 
     await dynamoDb.send(
       new DeleteCommand({
-        TableName: TABLE_NAME,
+        TableName: NOTIFICATION_TABLE,
         Key: { userId },
       })
     );
